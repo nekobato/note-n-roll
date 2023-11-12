@@ -1,23 +1,32 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useAudio } from "~/composables/useAudio";
+import { keys, octaves } from "~/utils/statics";
 
-const octaves = [2, 3, 4];
-const whiteKeys = ["c", "d", "e", "f", "g", "a", "b"];
-const blackKeys = ["cis", "dis", "fis", "gis", "ais"];
+const revercedOctaves = octaves.toReversed();
+const revercedKeys = keys.toReversed();
+const whiteKeys = revercedKeys.filter((key) => !key.includes("b"));
+const blackKeys = revercedKeys.filter((key) => key.includes("b"));
+
+const { playNote } = useAudio();
 </script>
 
 <template>
   <div class="piano">
-    <div class="octave" v-for="octave in octaves">
+    <div class="octave" v-for="octave in revercedOctaves">
       <div
         class="key-white"
         v-for="key in whiteKeys"
         :class="[octave, key]"
-      ></div>
+        @mousedown="playNote(key.toUpperCase() + octave)"
+      >
+        <span class="key-name">{{ key }}{{ octave }}</span>
+      </div>
       <div
         class="key-black"
         v-for="key in blackKeys"
         :class="[octave, key]"
+        @mousedown="playNote(key.toUpperCase() + 'b' + octave)"
       ></div>
     </div>
   </div>
@@ -27,21 +36,32 @@ const blackKeys = ["cis", "dis", "fis", "gis", "ais"];
 .piano {
   width: 100%;
   display: flex;
-  flex-direction: column-reverse;
+  flex: 0 0 auto;
+  flex-direction: column;
 }
 .octave {
   position: relative;
   display: flex;
   flex: 0 0 auto;
-  flex-direction: column-reverse;
+  flex-direction: column;
 }
 
 .key-white {
+  position: relative;
   flex: 0 0 auto;
   height: 24px;
   width: 100%;
   background: #fff;
   border: 1px solid #000;
+  display: inline-flex;
+  align-items: center;
+  .key-name {
+    position: absolute;
+    right: 4px;
+    color: #7c7c7c;
+    font-size: 10px;
+    text-transform: uppercase;
+  }
 }
 
 .key-black {
@@ -51,20 +71,20 @@ const blackKeys = ["cis", "dis", "fis", "gis", "ais"];
   width: 60%;
   background: #000;
   border: 1px solid #000;
-  &.cis {
-    bottom: 13px;
+  &.Db {
+    bottom: 14px;
   }
-  &.dis {
-    bottom: 40px;
+  &.Eb {
+    bottom: 43px;
   }
-  &.fis {
-    bottom: 79.5px;
+  &.Gb {
+    bottom: 85px;
   }
-  &.gis {
-    bottom: 105.5px;
+  &.Ab {
+    bottom: 112px;
   }
-  &.ais {
-    bottom: 131.5px;
+  &.Bb {
+    bottom: 139px;
   }
 }
 </style>
