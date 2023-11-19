@@ -51,23 +51,28 @@ const noteNames = [0, 1, 2, 3, 4, 5, 6, 7]
   })
   .flat();
 
+const sampler = new Tone.Sampler({
+  urls: noteNames.reduce((acc, noteName, i) => {
+    acc[noteName] = noteFiles[i] + ".mp3";
+    return acc;
+  }, {} as { [key: string]: string }),
+  release: 1,
+  baseUrl: pianoMp3Dir,
+}).toDestination();
+
 export const useAudio = () => {
-  const sampler = new Tone.Sampler({
-    urls: noteNames.reduce((acc, noteName, i) => {
-      acc[noteName] = noteFiles[i] + ".mp3";
-      return acc;
-    }, {} as { [key: string]: string }),
-    release: 1,
-    baseUrl: pianoMp3Dir,
-  }).toDestination();
   const playNote = (note: string) => {
-    console.log(note);
-    sampler.triggerAttackRelease(note, "8n");
+    sampler.triggerAttackRelease(note, 1);
   };
 
   const playNotes = (notes: Note[]) => {
     notes.forEach((note) => {
-      sampler.triggerAttackRelease(note.key, note.end - note.start, note.start);
+      console.log(note.key, note.end - note.start, note.start);
+      sampler.triggerAttackRelease(
+        note.key + note.octave,
+        note.end - note.start,
+        Tone.now() + note.start,
+      );
     });
   };
 
